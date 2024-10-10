@@ -1,0 +1,39 @@
+# Write Kubernetes Deployment Script
+
+apiVersion: apps/v1  # Specifies the API version used for the Deployment resource.
+kind: Deployment  # Defines the resource type as a Deployment.
+metadata:
+  name: book-catalog # Assigns the name "book-catalog" to the Deployment.
+spec:
+  replicas: 1  # Specifies the number of pod replicas to run (1 in this case).
+  selector:
+    matchLabels:
+      app: book-catalog # Matches pods with the "app: book-catalog" label.
+  template:
+    metadata:
+      labels:
+        app: book-catalog # Labels applied to the pods created by this Deployment.
+    spec:
+      containers:
+      - name: book-catalog # Name of the container running in the pod.
+        image: book-catalog:1 # Specifies the container image to use, tagged as "book-catelog:1".
+        ports:
+        - containerPort: 8000  # The port exposed by the container (internally on port 8000).
+        imagePullPolicy: Never # Ensures that the image is never pulled from a registry (uses local image).
+        env:
+        - name: DATABASE_URL # Environment variable for the container.
+          value: "postgresql://task6p_z53w_user:DJFI5yds9ZDmKJlJhCCu5IaqXKqs87yX@dpg-cs35se9u0jms73951vhg-a/task6p_z53w" # Database connection string for the container.
+---
+apiVersion: v1 # Specifies the API version used for the Service resource.
+kind: Service  # Defines the resource type as a Service.
+metadata:
+  name: book-catalog  # Assigns the name "book-catalog" to the Service.
+spec:
+  selector:
+    app: book-catalog # Matches pods with the "app: book-catalog" label to route traffic.
+  type: NodePort # Exposes the service on a port accessible outside the cluster.
+  ports:
+    - protocol: TCP # Defines the network protocol (TCP) for the service.
+      port: 8000 # Exposes the service on port 8000.
+      targetPort: 8000 # Forwards traffic to port 8000 inside the container.
+      nodePort: 30000  # The specific NodePort (30000) that makes the service accessible externally.
